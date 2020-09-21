@@ -1,3 +1,5 @@
+const keys = require("../keys");
+
 const functions = require("firebase-functions");
 
 // require in firebase-admin
@@ -14,7 +16,7 @@ const app = express();
 // require in firebase
 const firebase = require("firebase");
 const firebaseConfig = {
-  apiKey: "AIzaSyCeaLHIhiS91oNJU_ewsaQvz45zyVkMwdk",
+  apiKey: keys.API_KEY,
   authDomain: "food-trading-9a7e0.firebaseapp.com",
   databaseURL: "https://food-trading-9a7e0.firebaseio.com",
   projectId: "food-trading-9a7e0",
