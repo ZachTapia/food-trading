@@ -137,5 +137,41 @@ app.post("/signup", async (req, res) => {
   }
 });
 
+// Login Route
+app.post("/login", async (req, res) => {
+  const user = {
+    email: req.body.email,
+    password: req.body.password
+  };
+
+  let errors = {};
+
+  // Validate
+  if (isEmpty(user.email)) {
+    errors.email = "Must not be empty";
+  }
+  if (isEmpty(user.password)) {
+    errors.password = "Must not be empty";
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return res.status(400).json(errors);
+  }
+
+  try {
+    const userCredential = await firebase
+      .auth()
+      .signInWithEmailAndPassword(user.email, user.password);
+    const token = await userCredential.user.getIdToken();
+    return res.json(token);
+  } catch (err) {
+    console.error(err);
+    if (err.code === "auth/wrong-password") {
+      return res.status(403).json({ general: "Wrong credentials" });
+    }
+    return res.status(500).json({ err: err.code });
+  }
+});
+
 // Configure firebase to use express app
 exports.api = functions.https.onRequest(app);
