@@ -1,5 +1,5 @@
 const keys = require("../keys");
-
+const { isEmpty, isEmail } = require("./utils");
 const functions = require("firebase-functions");
 
 // require in firebase-admin
@@ -27,6 +27,7 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 
+// Get all posts route
 app.get("/posts", async (req, res) => {
   try {
     const querySnapshot = await db
@@ -51,8 +52,9 @@ app.get("/posts", async (req, res) => {
   }
 });
 
+// Create new post route
 app.post("/post", async (req, res) => {
-  // Create new post
+  // New post object
   const newPost = {
     body: req.body.body,
     username: req.body.username,
@@ -77,6 +79,27 @@ app.post("/signup", async (req, res) => {
     confirmPassword: req.body.confirmPassword,
     username: req.body.username
   };
+
+  // Validate user fields
+  const errors = {};
+
+  if (isEmpty(newUser.email)) {
+    errors.email = "Must not be empty";
+  } else if (!isEmail(newUser.email)) {
+    errors.email = "Must be a valid email address";
+  }
+
+  if (isEmpty(newUser.password)) {
+    errors.password = "Must not be empty";
+  }
+  if (newUser.password !== newUser.confirmPassword) {
+    errors.password = "Passwords must match";
+  }
+  if (isEmpty(newUser.username)) {
+    errors.username = "Must not be empty";
+  }
+
+  if (Object.keys(errors).length > 0) return res.status(400).json(errors);
 
   // Check to see if username is already taken
   const usernameCheck = await db.doc(`users/${newUser.username}`).get();
